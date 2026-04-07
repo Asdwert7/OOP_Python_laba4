@@ -1,37 +1,46 @@
 # =========================
-#1.1 Вывести все имена полей объекта, кроме служебных
+# 1.1 Вывести все имена полей объекта, кроме служебных
 # =========================
-class User:
-    def __init__(self):
-        self.name = 'Alex'
-        self.age = 20
-        self.city = 'Moscow'
+"""
+1.1: Создаём объект User и выводим имена его атрибутов через __dict__.
+__dict__ хранит словарь "имя_поля -> значение", поэтому выводим только ключи.
+"""
+class User:  # объявляем класс пользователя
+    def __init__(self):  # конструктор класса
+        self.name = 'Alex'  # атрибут имени
+        self.age = 20  # атрибут возраста
+        self.city = 'Moscow'  # атрибут города
 
+#
+obj = User()  # создаём экземпляр класса
 
-obj = User()
-
-for field_name in obj.__dict__:
-    print(field_name)
+for field_name in obj.__dict__:  # перебираем имена полей из словаря атрибутов
+    print(field_name)  # выводим имя поля
 
 # =========================
 # 1.2 Вызвать метод по имени, заданному строкой
 # =========================
-class User:
-    def hello(self):
-        print('Привет')
+"""
+1.2: Имя метода хранится в строке method_name.
+Сначала проверяем, что у объекта есть такой атрибут, затем берём его через getattr
+и вызываем, если он действительно является вызываемым объектом.
+"""
+class User:  # объявляем класс пользователя для примера вызова
+    def hello(self):  # метод приветствия
+        print('Привет')  # выводим приветствие
 
-    def bye(self):
-        print('Пока')
+    def bye(self):  # метод прощания
+        print('Пока')  # выводим прощание
 
+#
+obj = User()  # создаём экземпляр класса
 
-obj = User()
+method_name = 'hello'  # строка с именем метода
 
-method_name = 'hello'
-
-if hasattr(obj, method_name):
-    method = getattr(obj, method_name)
-    if callable(method):
-        method()
+if hasattr(obj, method_name):  # проверяем, что атрибут с таким именем существует
+    method = getattr(obj, method_name)  # получаем ссылку на метод по имени
+    if callable(method):  # убеждаемся, что атрибут можно вызвать
+        method()  # вызываем метод
 
 # =========================
 # 1.3 Что не так с этим кодом наследоваться только от Б
@@ -47,16 +56,16 @@ if hasattr(obj, method_name):
 Python не может построить корректный MRO и выдаст ошибку.
 
 '''
-class A:
-    pass
+class A:  # базовый класс A
+    pass  # пустое тело класса
 
+#
+class B(A):  # класс B наследуется от A
+    pass  # пустое тело класса
 
-class B(A):
-    pass
-
-
-class C(B):
-    pass
+#
+class C(B):  # класс C наследуется от B (и тем самым от A)
+    pass  # пустое тело класса
 # =========================
 # 1.4 Функция-однострочник get_inheritance
 # =========================
@@ -96,7 +105,7 @@ def get_inheritance(cls):
     return ' -> '.join(names)
 
 '''
-get_inheritance = lambda cls: ' -> '.join(base.__name__ for base in cls.__mro__)
+get_inheritance = lambda cls: ' -> '.join(base.__name__ for base in cls.__mro__)  # лямбда собирает цепочку наследования
 
 # =========================
 # 1.5 Реализовать хэш-таблицу, аналог dict
@@ -123,37 +132,37 @@ get_inheritance = lambda cls: ' -> '.join(base.__name__ for base in cls.__mro__)
 
 Но нам нужно получить номер корзины, куда этот ключ попадёт.
 '''
-class MyDict:
-    def __init__(self, bucket_count=16):
-        self.bucket_count = bucket_count
-        self.buckets = [[] for _ in range(bucket_count)]
-        self.size = 0
+class MyDict:  # упрощённая хэш-таблица
+    def __init__(self, bucket_count=16):  # конструктор с числом корзин
+        self.bucket_count = bucket_count  # сохраняем количество корзин
+        self.buckets = [[] for _ in range(bucket_count)]  # создаём список корзин
+        self.size = 0  # счётчик элементов
 
-    def _get_bucket_index(self, key):
-        return hash(key) % self.bucket_count # даст некоторое целое число.
+    def _get_bucket_index(self, key):  # вычисляем индекс корзины
+        return hash(key) % self.bucket_count  # получаем номер корзины по хэшу
 
-    def __setitem__(self, key, value):
-        bucket_index = self._get_bucket_index(key)
-        bucket = self.buckets[bucket_index]
+    def __setitem__(self, key, value):  # оператор присваивания через []
+        bucket_index = self._get_bucket_index(key)  # индекс корзины
+        bucket = self.buckets[bucket_index]  # сама корзина (список пар)
 
-        for i in range(len(bucket)):
-            stored_key, _ = bucket[i]
-            if stored_key == key:
-                bucket[i] = (key, value)
-                return
+        for i in range(len(bucket)):  # ищем ключ среди пар
+            stored_key, _ = bucket[i]  # распаковываем ключ
+            if stored_key == key:  # если ключ найден
+                bucket[i] = (key, value)  # обновляем значение
+                return  # выходим после обновления
 
-        bucket.append((key, value))
-        self.size += 1
+        bucket.append((key, value))  # если ключа не было, добавляем новую пару
+        self.size += 1  # увеличиваем счётчик элементов
 
-    def __getitem__(self, key):
-        bucket_index = self._get_bucket_index(key)
-        bucket = self.buckets[bucket_index]
+    def __getitem__(self, key):  # оператор доступа через []
+        bucket_index = self._get_bucket_index(key)  # индекс корзины
+        bucket = self.buckets[bucket_index]  # корзина с парами
 
-        for stored_key, stored_value in bucket:
-            if stored_key == key:
-                return stored_value
+        for stored_key, stored_value in bucket:  # перебираем пары в корзине
+            if stored_key == key:  # нашли нужный ключ
+                return stored_value  # возвращаем значение
 
-        raise KeyError(key)
+        raise KeyError(key)  # если ключа нет, поднимаем ошибку
 
-    def __len__(self):
-        return self.size
+    def __len__(self):  # длина структуры через len()
+        return self.size  # возвращаем количество элементов

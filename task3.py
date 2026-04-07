@@ -1,5 +1,5 @@
-import graphviz
-import matplotlib.pyplot as plt
+import graphviz  # библиотека для визуализации графов DOT
+import matplotlib.pyplot as plt  # библиотека для построения графиков
 
 # =========================
 # 3.1. Реализовать функцию draw(vertices, edges)
@@ -18,70 +18,77 @@ import matplotlib.pyplot as plt
 
 Если вершина встречается в рёбрах, но не была явно передана в vertices, она создаётся автоматически с подписью из своего номера.
 '''
-def draw(vertices, edges):
-    lines = ['digraph {']
 
-    vertex_ids = set()
+def draw(vertices, edges):  # функция построения графа DOT
+    lines = ['digraph {']  # начинаем описание графа
 
-    for vertex_id, label in vertices:
-        vertex_ids.add(vertex_id)
-        lines.append(f'    {vertex_id} [label="{label}"]')
+    vertex_ids = set()  # множество для известных вершин
 
-    for start, end in edges:
-        if start not in vertex_ids:
-            vertex_ids.add(start)
-            lines.append(f'    {start} [label="{start}"]')
-        if end not in vertex_ids:
-            vertex_ids.add(end)
-            lines.append(f'    {end} [label="{end}"]')
+    for vertex_id, label in vertices:  # добавляем вершины
+        vertex_ids.add(vertex_id)  # запоминаем id вершины
+        lines.append(f'    {vertex_id} [label="{label}"]')  # добавляем вершину с подписью
 
-        lines.append(f'    {start} -> {end}')
+    for start, end in edges:  # добавляем рёбра
+        if start not in vertex_ids:  # если стартовой вершины нет
+            vertex_ids.add(start)  # запоминаем её
+            lines.append(f'    {start} [label="{start}"]')  # добавляем вершину с подписью
+        if end not in vertex_ids:  # если конечной вершины нет
+            vertex_ids.add(end)  # запоминаем её
+            lines.append(f'    {end} [label="{end}"]')  # добавляем вершину с подписью
 
-    lines.append('}')
+        lines.append(f'    {start} -> {end}')  # добавляем дугу
 
-    dot_text = '\n'.join(lines)
-    graph = graphviz.Source(dot_text)
+    lines.append('}')  # закрываем описание графа
 
-    return graph
+    dot_text = '\n'.join(lines)  # соединяем строки в единый текст
+    graph = graphviz.Source(dot_text)  # создаём объект графа
+
+    return graph  # возвращаем объект для рендеринга
 
 
-graph = draw([(1, 'v1'), (2, 'v2')], [(1, 2), (2, 3), (2, 2)])
-graph.render('task3_graph', format='png', view=True, cleanup=True)
+graph = draw([(1, 'v1'), (2, 'v2')], [(1, 2), (2, 3), (2, 2)])  # создаём тестовый граф
+
+graph.render('task3_graph', format='png', view=True, cleanup=True)  # сохраняем и открываем картинку
 
 # =========================
 # 3.2 Логистическое отображение LogisticMap
 # =========================
+"""
+3.2: Логистическое отображение описывает динамику x_{n+1} = mu * x_n * (1 - x_n).
+Базовый класс Chaos хранит параметры и делает стабилизацию, а LogisticMap
+переопределяет метод next(), чтобы вычислять новое состояние.
+"""
 
 
-class Chaos:
-    def __init__(self, mu, state):
-        self.mu = mu
-        self.state = state
-        self.stabilize()
+class Chaos:  # базовый класс динамической системы
+    def __init__(self, mu, state):  # сохраняем параметр и начальное состояние
+        self.mu = mu  # параметр системы
+        self.state = state  # текущее состояние
+        self.stabilize()  # прогреваем систему
 
-    def stabilize(self):
-        for _ in range(1000):
-            self.next()
+    def stabilize(self):  # стабилизация: много шагов
+        for _ in range(1000):  # выполняем 1000 итераций
+            self.next()  # вычисляем следующий шаг
 
-    def next(self):
-        return self.state
-
-
-class LogisticMap(Chaos):
-    def next(self):
-        self.state = self.mu * self.state * (1 - self.state)
-        return self.state
+    def next(self):  # базовый вариант next
+        return self.state  # по умолчанию просто возвращаем состояние
 
 
-values_mu = [2, 3.2, 3.5, 3.55]
+class LogisticMap(Chaos):  # логистическое отображение
+    def next(self):  # вычисление следующего состояния
+        self.state = self.mu * self.state * (1 - self.state)  # формула логистической карты
+        return self.state  # возвращаем новое состояние
 
-for mu in values_mu:
-    obj = LogisticMap(mu, 0.1)
-    result_1 = obj.next()
-    result_2 = obj.next()
-    result_3 = obj.next()
 
-    print(f'mu = {mu}: ({result_1}, {result_2}, {result_3})')
+values_mu = [2, 3.2, 3.5, 3.55]  # список значений параметра mu
+
+for mu in values_mu:  # перебираем значения mu
+    obj = LogisticMap(mu, 0.1)  # создаём объект логистической карты
+    result_1 = obj.next()  # делаем первый шаг
+    result_2 = obj.next()  # делаем второй шаг
+    result_3 = obj.next()  # делаем третий шаг
+
+    print(f'mu = {mu}: ({result_1}, {result_2}, {result_3})')  # печатаем результаты
 
 # =========================
 # 3.3 Создать функцию visualize для визуализации графа изменений состояния класса LogisticMap
@@ -102,73 +109,74 @@ for mu in values_mu:
 - и так далее    
 '''
 
-def draw(vertices, edges):
-    lines = ['digraph {']
+def draw(vertices, edges):  # функция построения графа DOT
+    lines = ['digraph {']  # начинаем описание графа
 
-    for vertex_id, label in vertices:
-        lines.append(f'    {vertex_id} [label="{label}"]')
+    for vertex_id, label in vertices:  # добавляем вершины
+        lines.append(f'    {vertex_id} [label="{label}"]')  # строка вершины
 
-    for start, end in edges:
-        lines.append(f'    {start} -> {end}')
+    for start, end in edges:  # добавляем рёбра
+        lines.append(f'    {start} -> {end}')  # строка дуги
 
-    lines.append('}')
+    lines.append('}')  # закрываем описание графа
 
-    dot_text = '\n'.join(lines)
-    graph = graphviz.Source(dot_text)
-    return graph
-
-
-class Chaos:
-    def __init__(self, mu, state):
-        self.mu = mu
-        self.state = state
-        self.stabilize()
-
-    def stabilize(self):
-        for _ in range(1000):
-            self.next()
-
-    def next(self):
-        return self.state
+    dot_text = '\n'.join(lines)  # соединяем строки в единый текст
+    graph = graphviz.Source(dot_text)  # создаём объект графа
+    return graph  # возвращаем объект для рендеринга
 
 
-class LogisticMap(Chaos):
-    def next(self):
-        self.state = self.mu * self.state * (1 - self.state)
-        return self.state
+class Chaos:  # базовый класс динамической системы
+    def __init__(self, mu, state):  # сохраняем параметр и состояние
+        self.mu = mu  # параметр системы
+        self.state = state  # текущее состояние
+        self.stabilize()  # прогреваем систему
+
+    def stabilize(self):  # стабилизация: много шагов
+        for _ in range(1000):  # выполняем 1000 итераций
+            self.next()  # вычисляем следующий шаг
+
+    def next(self):  # базовый вариант next
+        return self.state  # по умолчанию возвращаем состояние
 
 
-def visualize(obj):
-    vertices = []
-    edges = []
-    state_to_id = {}
-
-    current_state = obj.next()
-    state_to_id[current_state] = 1
-    vertices.append((1, str(current_state)))
-
-    current_id = 1
-    next_id = 2
-
-    while True:
-        next_state = obj.next()
-
-        if next_state in state_to_id:
-            edges.append((current_id, state_to_id[next_state]))
-            break
-
-        state_to_id[next_state] = next_id
-        vertices.append((next_id, str(next_state)))
-        edges.append((current_id, next_id))
-
-        current_id = next_id
-        next_id += 1
-
-    return draw(vertices, edges)
+class LogisticMap(Chaos):  # логистическое отображение
+    def next(self):  # вычисление следующего состояния
+        self.state = self.mu * self.state * (1 - self.state)  # формула логистической карты
+        return self.state  # возвращаем новое состояние
 
 
-graph = visualize(LogisticMap(3.5, 0.1))
-graph.render('task3_3_graph', format='png', view=True, cleanup=True)
+def visualize(obj):  # строим граф переходов состояний
+    vertices = []  # список вершин
+    edges = []  # список рёбер
+    state_to_id = {}  # отображение состояния в номер вершины
+
+    current_state = obj.next()  # первое состояние после шага
+    state_to_id[current_state] = 1  # присваиваем ему id
+    vertices.append((1, str(current_state)))  # добавляем вершину
+
+    current_id = 1  # текущий id вершины
+    next_id = 2  # следующий id вершины
+
+    while True:  # строим граф до повторения состояния
+        next_state = obj.next()  # вычисляем следующее состояние
+
+        if next_state in state_to_id:  # если состояние уже было
+            edges.append((current_id, state_to_id[next_state]))  # добавляем ребро на цикл
+            break  # завершаем построение
+
+        state_to_id[next_state] = next_id  # запоминаем новое состояние
+        vertices.append((next_id, str(next_state)))  # добавляем вершину
+        edges.append((current_id, next_id))  # добавляем ребро перехода
+
+        current_id = next_id  # смещаем текущий id
+        next_id += 1  # увеличиваем следующий id
+
+    return draw(vertices, edges)  # возвращаем граф
+
+
+graph = visualize(LogisticMap(3.5, 0.1))  # строим граф переходов
+
+graph.render('task3_3_graph', format='png', view=True, cleanup=True)  # сохраняем и открываем картинку
 
 # =========================
 # 3.4 Построить диаграмму бифуркаций для логистического отображения
@@ -190,36 +198,36 @@ graph.render('task3_3_graph', format='png', view=True, cleanup=True)
 Если начинает чередоваться между двумя, четырьмя, многими значениями, появятся расщепления.
 '''
 
-def bifurcation_diagram():
-    mu_values = []
-    state_values = []
+def bifurcation_diagram():  # строим диаграмму бифуркаций
+    mu_values = []  # значения mu по оси x
+    state_values = []  # состояния по оси y
 
-    mu = 1.0
-    step = 0.01
+    mu = 1.0  # начальное значение mu
+    step = 0.01  # шаг изменения mu
 
-    while mu <= 4.0:
-        obj = LogisticMap(mu, 0.1)
+    while mu <= 4.0:  # перебираем mu до 4.0
+        obj = LogisticMap(mu, 0.1)  # создаём объект логистической карты
 
-        for _ in range(200):
-            obj.next()
+        for _ in range(200):  # отбрасываем переходный процесс
+            obj.next()  # делаем шаг
 
-        for _ in range(20):
-            state = obj.next()
-            mu_values.append(mu)
-            state_values.append(state)
+        for _ in range(20):  # сохраняем несколько устойчивых значений
+            state = obj.next()  # получаем состояние
+            mu_values.append(mu)  # добавляем mu
+            state_values.append(state)  # добавляем состояние
 
-        mu += step
+        mu += step  # увеличиваем mu
 
-    plt.figure(figsize=(10, 8))
-    plt.scatter(mu_values, state_values, s=8)
-    plt.title('Диаграмма бифуркаций логистического отображения')
-    plt.xlabel('mu')
-    plt.ylabel('state')
-    plt.grid(True)
-    plt.show()
+    plt.figure(figsize=(10, 8))  # создаём окно графика
+    plt.scatter(mu_values, state_values, s=8)  # строим точки диаграммы
+    plt.title('Диаграмма бифуркаций логистического отображения')  # заголовок
+    plt.xlabel('mu')  # подпись оси x
+    plt.ylabel('state')  # подпись оси y
+    plt.grid(True)  # включаем сетку
+    plt.show()  # показываем график
 
 
-bifurcation_diagram()
+bifurcation_diagram()  # запускаем построение диаграммы
 
 # =========================
 # 3.5. Полученную динамическую систему можно использовать в качестве генераторов псевдослучайных чисел.
@@ -240,20 +248,20 @@ bifurcation_diagram()
 То есть распределение получается U-образным.
 '''
 
-def distribution_logistic_map():
-    obj = LogisticMap(4.0, 0.1)
-    values = []
+def distribution_logistic_map():  # строим распределение значений
+    obj = LogisticMap(4.0, 0.1)  # создаём объект логистической карты
+    values = []  # список значений
 
-    for _ in range(100000):
-        values.append(obj.next())
+    for _ in range(100000):  # собираем много состояний
+        values.append(obj.next())  # добавляем очередное значение
 
-    plt.figure(figsize=(10, 8))
-    plt.hist(values, bins=30, density=True, edgecolor='white')
-    plt.title('Распределение значений LogisticMap при mu = 4.0')
-    plt.xlabel('state')
-    plt.ylabel('density')
-    plt.grid(True)
-    plt.show()
+    plt.figure(figsize=(10, 8))  # создаём окно графика
+    plt.hist(values, bins=30, density=True, edgecolor='white')  # строим гистограмму
+    plt.title('Распределение значений LogisticMap при mu = 4.0')  # заголовок
+    plt.xlabel('state')  # подпись оси x
+    plt.ylabel('density')  # подпись оси y
+    plt.grid(True)  # включаем сетку
+    plt.show()  # показываем график
 
 
-distribution_logistic_map()
+distribution_logistic_map()  # запускаем построение гистограммы

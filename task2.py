@@ -1,84 +1,95 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import numpy as np  # библиотека для массивов и векторов
+import matplotlib.pyplot as plt  # библиотека для построения графиков
 
-import math 
-from decimal import Decimal
+import math  # стандартные математические функции
+from decimal import Decimal  # десятичные числа с контролем точности
 
 # =========================
 # 2.1. Построить двухмерный график на основе следующих уравнений:
 # =========================
+"""
+2.1: Строим параметрическую кривую сердечка.
+Сначала создаём параметр t, затем вычисляем x(t) и y(t),
+после чего рисуем контур и залитую область.
+"""
 
-t = np.linspace(0, 2 * np.pi, 1000)
+t = np.linspace(0, 2 * np.pi, 1000)  # создаём 1000 значений t от 0 до 2π
 
-x = 16 * np.sin(t) ** 3
-y = 13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)
+x = 16 * np.sin(t) ** 3  # вычисляем x(t) по формуле
 
-plt.figure(figsize=(6, 6))
-plt.plot(x, y, color='red')
-plt.title('График по параметрическим уравнениям')
-plt.grid(True)
-plt.axis('equal')
-plt.show()
+y = 13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)  # вычисляем y(t) по формуле
 
-plt.figure(figsize=(6, 6))
-plt.fill(x, y, color='red')
-plt.title('График с внутренней заливкой')
-plt.grid(True)
-plt.axis('equal')
-plt.show()
+plt.figure(figsize=(6, 6))  # создаём окно графика
+plt.plot(x, y, color='red')  # рисуем линию параметрической кривой
+plt.title('График по параметрическим уравнениям')  # заголовок графика
+plt.grid(True)  # включаем сетку
+plt.axis('equal')  # выравниваем масштаб осей
+plt.show()  # показываем график
+
+plt.figure(figsize=(6, 6))  # создаём окно для залитого графика
+plt.fill(x, y, color='red')  # заливаем область внутри кривой
+plt.title('График с внутренней заливкой')  # заголовок графика
+plt.grid(True)  # включаем сетку
+plt.axis('equal')  # выравниваем масштаб осей
+plt.show()  # показываем график
 
 # =========================
 # 2.2. Построить трёхмерный график по уравнению:
 # =========================
+"""
+2.2: Рисуем трёхмерную поверхность, заданную неявным уравнением.
+Мы берём набор сечений по осям x, y, z и строим контуры уровня 0,
+получая объёмную фигуру в виде каркаса.
+"""
 
-def figure_func(x, y, z):
-    return ((x ** 2 + (9 * y ** 2) / 4 + z ** 2 - 1) ** 3
-            - x ** 2 * z ** 3
-            - (9 * y ** 2 * z ** 3) / 200)
-
-
-def draw(figure_func, bbox=(-1.5, 1.5)):
-    xmin, xmax, ymin, ymax, zmin, zmax = bbox * 3
-
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(projection='3d')
-
-    a = np.linspace(xmin, xmax, 120)
-    b = np.linspace(xmin, xmax, 25)
-
-    a1, a2 = np.meshgrid(a, a)
-
-    for x0 in b:
-        y = a1
-        z = a2
-        values = figure_func(x0, y, z)
-        ax.contour(y, z, values, levels=[0], zdir='x', offset=x0,
-                   colors='red')
-
-    for y0 in b:
-        x = a1
-        z = a2
-        values = figure_func(x, y0, z)
-        ax.contour(x, z, values, levels=[0], zdir='y', offset=y0,
-                   colors='red')
-
-    for z0 in b:
-        x = a1
-        y = a2
-        values = figure_func(x, y, z0)
-        ax.contour(x, y, values, levels=[0], zdir='z', offset=z0,
-                   colors='red')
-
-    ax.set_xlim3d(xmin, xmax)
-    ax.set_ylim3d(ymin, ymax)
-    ax.set_zlim3d(zmin, zmax)
-    ax.set_box_aspect((1, 1, 1))
-
-    plt.title('2.2 Трёхмерный график')
-    plt.show()
+def figure_func(x, y, z):  # функция поверхности
+    return ((x ** 2 + (9 * y ** 2) / 4 + z ** 2 - 1) ** 3  # основная часть формулы
+            - x ** 2 * z ** 3  # корректирующий член по x и z
+            - (9 * y ** 2 * z ** 3) / 200)  # корректирующий член по y и z
 
 
-draw(figure_func)
+def draw(figure_func, bbox=(-1.5, 1.5)):  # функция визуализации с границами
+    xmin, xmax, ymin, ymax, zmin, zmax = bbox * 3  # распаковываем границы по осям
+
+    fig = plt.figure(figsize=(10, 10))  # создаём фигуру
+    ax = fig.add_subplot(projection='3d')  # добавляем 3D-оси
+
+    a = np.linspace(xmin, xmax, 120)  # плотная сетка для контуров
+    b = np.linspace(xmin, xmax, 25)  # более редкие срезы
+
+    a1, a2 = np.meshgrid(a, a)  # формируем сетку для плоскостей
+
+    for x0 in b:  # строим сечения по x
+        y = a1  # ось y остаётся сеткой
+        z = a2  # ось z остаётся сеткой
+        values = figure_func(x0, y, z)  # считаем значения функции
+        ax.contour(y, z, values, levels=[0], zdir='x', offset=x0,  # рисуем контур уровня 0
+                   colors='red')  # задаём цвет линий
+
+    for y0 in b:  # строим сечения по y
+        x = a1  # ось x остаётся сеткой
+        z = a2  # ось z остаётся сеткой
+        values = figure_func(x, y0, z)  # считаем значения функции
+        ax.contour(x, z, values, levels=[0], zdir='y', offset=y0,  # рисуем контур уровня 0
+                   colors='red')  # задаём цвет линий
+
+    for z0 in b:  # строим сечения по z
+        x = a1  # ось x остаётся сеткой
+        y = a2  # ось y остаётся сеткой
+        values = figure_func(x, y, z0)  # считаем значения функции
+        ax.contour(x, y, values, levels=[0], zdir='z', offset=z0,  # рисуем контур уровня 0
+                   colors='red')  # задаём цвет линий
+
+    ax.set_xlim3d(xmin, xmax)  # задаём пределы по x
+    ax.set_ylim3d(ymin, ymax)  # задаём пределы по y
+    ax.set_zlim3d(zmin, zmax)  # задаём пределы по z
+    ax.set_box_aspect((1, 1, 1))  # делаем оси равномерными
+
+    plt.title('2.2 Трёхмерный график')  # заголовок графика
+    plt.show()  # показываем график
+
+
+draw(figure_func)  # запускаем построение 3D-графика
 
 
 # =========================
@@ -95,19 +106,21 @@ draw(figure_func)
 - переводит диапазон из [0, 1) в [-1, 1)
 
 '''
-def noise(x):
-    value = np.sin(x * 12.9898) * 43758.5453
-    frac = value - np.floor(value)
-    return 2 * frac - 1
+
+def noise(x):  # функция псевдошума
+    value = np.sin(x * 12.9898) * 43758.5453  # создаём хаотичное число
+    frac = value - np.floor(value)  # оставляем только дробную часть
+    return 2 * frac - 1  # переносим в диапазон [-1, 1)
 
 
-x = np.arange(1000)
-y = noise(x)
+x = np.arange(1000)  # создаём массив индексов
 
-plt.figure(figsize=(18, 6))
-plt.plot(x, y, color='blue', linewidth=0.5)
-plt.title('2.3 Белый шум')
-plt.show()
+y = noise(x)  # применяем функцию шума
+
+plt.figure(figsize=(18, 6))  # создаём окно графика
+plt.plot(x, y, color='blue', linewidth=0.5)  # рисуем шумовую линию
+plt.title('2.3 Белый шум')  # заголовок графика
+plt.show()  # показываем график
 
 # =========================
 # 2.4. Разработать модель аппаратного ускорителя вычислений для программно-аппаратного комплекса. 
@@ -133,43 +146,44 @@ plt.show()
     20 \log_{10}\left(\frac{A_{out}}{1000}\right)
 6 Строим график omega -> усиление.
 '''
-k = [6, 0, -4, -3, 5, 6, -6, -13, 7, 44, 64, 44, 7, -13, -6, 6, 5, -3, -4, 0, 6]
+
+k = [6, 0, -4, -3, 5, 6, -6, -13, 7, 44, 64, 44, 7, -13, -6, 6, 5, -3, -4, 0, 6]  # коэффициенты фильтра
 
 
-def float_range(start, stop, step):
-    while start < stop:
-        yield float(start)
-        start += step
+def float_range(start, stop, step):  # генератор вещественных значений
+    while start < stop:  # пока не достигли стопа
+        yield float(start)  # возвращаем текущее значение
+        start += step  # увеличиваем на шаг
 
 
-omega_list = list(float_range(Decimal('0.1'), Decimal('2.1'), Decimal('0.1')))
-ex_list = []
+omega_list = list(float_range(Decimal('0.1'), Decimal('2.1'), Decimal('0.1')))  # список частот
+ex_list = []  # список усилений
 
-for omega in omega_list:
-    y_list = []
+for omega in omega_list:  # цикл по частотам
+    y_list = []  # список выходных значений
 
-    for t in range(1, 100):
-        y = 0
+    for t in range(1, 100):  # перебираем моменты времени
+        y = 0  # накапливаем выход фильтра
 
-        for b in range(0, len(k)):
-            x = round(1000 * math.sin(omega * (t + b)))
-            y += k[b] * x
+        for b in range(0, len(k)):  # суммируем вклад коэффициентов
+            x = round(1000 * math.sin(omega * (t + b)))  # входной сигнал
+            y += k[b] * x  # добавляем вклад в выход
 
-        y_list.append(y)
+        y_list.append(y)  # сохраняем выход
 
-    max_amplitude = max(abs(value) for value in y_list)
+    max_amplitude = max(abs(value) for value in y_list)  # максимальная амплитуда
 
-    if max_amplitude == 0:
-        ex = -120
+    if max_amplitude == 0:  # защита от деления на ноль
+        ex = -120  # условное минимальное значение
     else:
-        ex = 20 * math.log10(max_amplitude / 1000)
+        ex = 20 * math.log10(max_amplitude / 1000)  # перевод в децибелы
 
-    ex_list.append(ex)
+    ex_list.append(ex)  # сохраняем усиление
 
-plt.figure(figsize=(18, 6))
-plt.plot(omega_list, ex_list)
-plt.title('Амплитудно-частотная характеристика КИХ-фильтра')
-plt.xlabel('Частота, рад/отсчёт')
-plt.ylabel('Усиление, дБ')
-plt.grid(True)
-plt.show()
+plt.figure(figsize=(18, 6))  # создаём окно графика
+plt.plot(omega_list, ex_list)  # строим график усиления
+plt.title('Амплитудно-частотная характеристика КИХ-фильтра')  # заголовок графика
+plt.xlabel('Частота, рад/отсчёт')  # подпись оси x
+plt.ylabel('Усиление, дБ')  # подпись оси y
+plt.grid(True)  # включаем сетку
+plt.show()  # показываем график
