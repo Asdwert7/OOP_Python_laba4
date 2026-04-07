@@ -64,7 +64,7 @@ class B(A):  # класс B наследуется от A
     pass  # пустое тело класса
 
 #
-class C(B):  # класс C наследуется от B (и тем самым от A)
+class C(B,A):  # класс C наследуется от B (и тем самым от A)
     pass  # пустое тело класса
 # =========================
 # 1.4 Функция-однострочник get_inheritance
@@ -105,7 +105,10 @@ def get_inheritance(cls):
     return ' -> '.join(names)
 
 '''
-get_inheritance = lambda cls: ' -> '.join(base.__name__ for base in cls.__mro__)  # лямбда собирает цепочку наследования
+# get_inheritance = lambda cls: ' -> '.join(base.__name__ for base in cls.__mro__)  # лямбда собирает цепочку наследования
+def get_inheritance(arg):
+    return ' -> '.join(map(lambda base: base.__name__,  arg.__mro__))
+print(get_inheritance(C))
 
 # =========================
 # 1.5 Реализовать хэш-таблицу, аналог dict
@@ -149,7 +152,7 @@ class MyDict:  # упрощённая хэш-таблица
             stored_key, _ = bucket[i]  # распаковываем ключ
             if stored_key == key:  # если ключ найден
                 bucket[i] = (key, value)  # обновляем значение
-                return  # выходим после обновления
+                return  # выходим после обновления 
 
         bucket.append((key, value))  # если ключа не было, добавляем новую пару
         self.size += 1  # увеличиваем счётчик элементов
@@ -166,3 +169,11 @@ class MyDict:  # упрощённая хэш-таблица
 
     def __len__(self):  # длина структуры через len()
         return self.size  # возвращаем количество элементов
+
+name = MyDict()
+name["name"] = "Alex"
+
+name["name2"] = "Vova"
+name["name2"] = "Alexander"
+print (name["name2"])
+print (len(name))
