@@ -489,7 +489,7 @@ def draw(pic: bytes):  # декодирование и отрисовка AGI-д
 '''
 
 
-pic = Path("data/PIC.28").read_bytes()  # читаем байты из файла
+pic = Path("data/PIC.44").read_bytes()  # читаем байты из файла
 
 root = tk.Tk()  # создаём главное окно
 root.title("AGI PIC viewer")  # задаём заголовок окна
